@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.tex": "latex",
+    "boot1lib.h": "c"
+  }
+}

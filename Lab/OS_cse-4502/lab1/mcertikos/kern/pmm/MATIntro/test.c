@@ -3,12 +3,14 @@
 
 int MATIntro_test1()
 {
-    int rn10[] = { 1, 3, 5, 6, 78, 3576, 32, 8, 0, 100 };
+    int rn10[] = {1, 3, 5, 6, 78, 3576, 32, 8, 0, 100};
     int i;
     int nps = get_nps();
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++)
+    {
         set_nps(rn10[i]);
-        if (get_nps() != rn10[i]) {
+        if (get_nps() != rn10[i])
+        {
             dprintf("test 1.1 failed (i = %d): (%d != %d)\n", i, get_nps(), rn10[i]);
             set_nps(nps);
             return 1;
@@ -22,25 +24,29 @@ int MATIntro_test1()
 int MATIntro_test2()
 {
     at_set_perm(0, 0);
-    if (at_is_norm(0) != 0 || at_is_allocated(0) != 0) {
+    if (at_is_norm(0) != 0 || at_is_allocated(0) != 0)
+    {
         dprintf("test 2.1 failed: (%d != 0 || %d != 0)\n", at_is_norm(0), at_is_allocated(0));
         at_set_perm(0, 0);
         return 1;
     }
     at_set_perm(0, 1);
-    if (at_is_norm(0) != 0 || at_is_allocated(0) != 0) {
+    if (at_is_norm(0) != 0 || at_is_allocated(0) != 0)
+    {
         dprintf("test 2.2 failed: (%d != 0 || %d != 0)\n", at_is_norm(0), at_is_allocated(0));
         at_set_perm(0, 0);
         return 1;
     }
     at_set_perm(0, 2);
-    if (at_is_norm(0) != 1 || at_is_allocated(0) != 0) {
+    if (at_is_norm(0) != 1 || at_is_allocated(0) != 0)
+    {
         dprintf("test 2.3 failed: (%d != 1 || %d != 0)\n", at_is_norm(0), at_is_allocated(0));
         at_set_perm(0, 0);
         return 1;
     }
     at_set_perm(0, 100);
-    if (at_is_norm(0) != 1 || at_is_allocated(0) != 0) {
+    if (at_is_norm(0) != 1 || at_is_allocated(0) != 0)
+    {
         dprintf("test 2.4 failed: (%d != 1 || %d != 0)\n", at_is_norm(0), at_is_allocated(0));
         at_set_perm(0, 0);
         return 1;
@@ -53,19 +59,22 @@ int MATIntro_test2()
 int MATIntro_test3()
 {
     at_set_allocated(1, 0);
-    if (at_is_allocated(1) != 0) {
+    if (at_is_allocated(1) != 0)
+    {
         dprintf("test 3.1 failed: (%d != 0)\n", at_is_allocated(1));
         at_set_allocated(1, 0);
         return 1;
     }
     at_set_allocated(1, 1);
-    if (at_is_allocated(1) != 1) {
+    if (at_is_allocated(1) != 1)
+    {
         dprintf("test 3.2 failed: (%d != 1)\n", at_is_allocated(1));
         at_set_allocated(1, 0);
         return 1;
     }
     at_set_allocated(1, 100);
-    if (at_is_allocated(1) != 1) {
+    if (at_is_allocated(1) != 1)
+    {
         dprintf("test 3.3 failed: (%d != 1)\n", at_is_allocated(1));
         at_set_allocated(1, 0);
         return 1;
@@ -88,10 +97,22 @@ int MATIntro_test3()
  * the original value. O.w., it may make the future test scripts to fail even if you implement all
  * the functions correctly.
  */
+
 int MATIntro_test_own()
 {
-    // TODO (optional)
-    // dprintf("own test passed.\n");
+    unsigned int test_page = 100;
+
+    // Verify that setting permission to 1 (Kernel only) results in non-normal page
+    at_set_perm(test_page, 1);
+    if (at_is_norm(test_page) != 0)
+    {
+        dprintf("Own test failed");
+        at_set_perm(test_page, 0);
+        return 1;
+    }
+
+    at_set_perm(test_page, 0);
+    dprintf("Own test passed.\n");
     return 0;
 }
 

@@ -1,9 +1,9 @@
 #include <lib/debug.h>
 #include "import.h"
 
-#define PAGESIZE     4096
-#define VM_USERLO    0x40000000
-#define VM_USERHI    0xF0000000
+#define PAGESIZE 4096
+#define VM_USERLO 0x40000000
+#define VM_USERHI 0xF0000000
 #define VM_USERLO_PI (VM_USERLO / PAGESIZE)
 #define VM_USERHI_PI (VM_USERHI / PAGESIZE)
 
@@ -21,7 +21,15 @@ void pmem_init(unsigned int mbi_addr)
 {
     unsigned int nps;
 
-    // TODO: Define your local variables here.
+    unsigned int table_row_number;
+    unsigned int starting_address;
+    unsigned int ending_address;
+    unsigned int length;
+
+    unsigned int i;
+
+    unsigned int perm;
+    unsigned int page_idx;
 
     // Calls the lower layer initialization primitive.
     // The parameter mbi_addr should not be used in the further code.
@@ -33,9 +41,21 @@ void pmem_init(unsigned int mbi_addr)
      * Hint: Think of it as the highest address in the ranges of the memory map table,
      *       divided by the page size.
      */
-    // TODO
+    table_row_number = get_size();
+    if (table_row_number == 0)
+    {
+        nps = 0;
+    }
+    else
+    {
+        starting_address = get_mms(table_row_number - 1);
+        length = get_mml(table_row_number - 1);
+        ending_address = starting_address + length - 1;
 
-    set_nps(nps);  // Setting the value computed above to NUM_PAGES.
+        nps = starting_address / PAGESIZE + length / PAGESIZE + (starting_address % PAGESIZE + length % PAGESIZE) / PAGESIZE;
+    }
+
+    set_nps(nps); // Setting the value computed above to NUM_PAGES.
 
     /**
      * Initialization of the physical allocation table (AT).
@@ -60,5 +80,51 @@ void pmem_init(unsigned int mbi_addr)
      *    the addresses are in a usable range. Currently, we do not utilize partial pages,
      *    so in that case, you should consider those pages as unavailable.
      */
-    // TODO
+
+    // For the kernel -> 0 to VM_USERLO_PI - 1
+    for (i = 0; i < VM_USERLO_PI; i++)
+    {
+        at_set_perm(i, 1);
+    }
+    // VM_USERHI_PI to NUM_PAGES - 1
+    for (i = VM_USERHI_PI; i < nps; i++)
+    {
+        at_set_perm(i, 1);
+    }
+
+    // set all default permission to 0
+    for (i = VM_USERLO_PI; i < VM_USERHI_PI; i++)
+    {
+        at_set_perm(i, 0);
+    }
+
+    for (i = 0; i < table_row_number; i++)
+    {
+        starting_address = get_mms(i);
+        length = get_mml(i);
+        perm = is_usable(i);
+        perm = perm == 1 ? 2 : 0;
+        page_idx = starting_address / PAGESIZE;
+        // align to the beginning of a page
+        if (page_idx * PAGESIZE < starting_address)
+        {
+            page_idx++;
+        }
+        // the whole page resides in this row
+        while ((page_idx + 1) * PAGESIZE <= starting_address + length)
+        {
+            // the kernel reserved area
+            if (page_idx < VM_USERLO_PI)
+            {
+                page_idx++;
+                continue;
+            }
+            if (page_idx >= VM_USERHI_PI)
+            {
+                break;
+            }
+            at_set_perm(page_idx, perm);
+            page_idx++;
+        }
+    }
 }

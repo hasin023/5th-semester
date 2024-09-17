@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-project",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "dev:server": "nodemon server.js"
+  },
+  "keywords": [
+    "Lab1"
+  ],
+  "author": "hasin023",
+  "license": "ISC",
+  "description": "Task for lab 01",
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

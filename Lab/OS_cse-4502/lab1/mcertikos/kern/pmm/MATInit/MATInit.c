@@ -21,10 +21,13 @@ void pmem_init(unsigned int mbi_addr)
 {
     unsigned int nps;
 
+    // Declare variables
     unsigned int table_row_number;
-    unsigned int starting_address;
-    unsigned int ending_address;
-    unsigned int length;
+    
+    unsigned int range_start_address;
+    unsigned int range_end_address;
+    unsigned int range_length;
+    unsigned int highest_address;
 
     unsigned int i;
 
@@ -48,11 +51,18 @@ void pmem_init(unsigned int mbi_addr)
     }
     else
     {
-        starting_address = get_mms(table_row_number - 1);
-        length = get_mml(table_row_number - 1);
-        ending_address = starting_address + length - 1;
-
-        nps = starting_address / PAGESIZE + length / PAGESIZE + (starting_address % PAGESIZE + length % PAGESIZE) / PAGESIZE;
+        highest_address = 0;
+        
+        // Find the highest address in the memory map table
+        for (i = 0; i < table_row_number; i++) {
+            range_end_address = get_mms(i) + get_mml(i);
+            
+            if (range_end_address > highest_address) {
+                highest_address = range_end_address;
+            }
+        }
+        
+        nps = (highest_address / PAGESIZE) + 1;
     }
 
     set_nps(nps); // Setting the value computed above to NUM_PAGES.
@@ -92,39 +102,29 @@ void pmem_init(unsigned int mbi_addr)
         at_set_perm(i, 1);
     }
 
-    // set all default permission to 0
+    // set all default permission to 0 as unavailable
     for (i = VM_USERLO_PI; i < VM_USERHI_PI; i++)
     {
         at_set_perm(i, 0);
     }
 
-    for (i = 0; i < table_row_number; i++)
-    {
-        starting_address = get_mms(i);
-        length = get_mml(i);
-        perm = is_usable(i);
-        perm = perm == 1 ? 2 : 0;
-        page_idx = starting_address / PAGESIZE;
-        // align to the beginning of a page
-        if (page_idx * PAGESIZE < starting_address)
-        {
-            page_idx++;
-        }
-        // the whole page resides in this row
-        while ((page_idx + 1) * PAGESIZE <= starting_address + length)
-        {
-            // the kernel reserved area
-            if (page_idx < VM_USERLO_PI)
-            {
-                page_idx++;
-                continue;
+
+    for (i = 0; i < table_row_number; i++) {
+        if (is_usable(i)) {
+            range_start_address = get_mms(i);
+            range_end_address = range_start_address + get_mml(i);
+
+            // Check each page within this range
+            for (unsigned int page = VM_USERLO_PI; page < VM_USERHI_PI; page++) {
+                unsigned int page_start = page * PAGESIZE;
+                unsigned int page_end = page_start + PAGESIZE - 1;
+
+                
+                if (page_start >= range_start_address && page_end < range_end_address) {
+                    at_set_perm(page, 2);
+                }
             }
-            if (page_idx >= VM_USERHI_PI)
-            {
-                break;
-            }
-            at_set_perm(page_idx, perm);
-            page_idx++;
         }
     }
+
 }

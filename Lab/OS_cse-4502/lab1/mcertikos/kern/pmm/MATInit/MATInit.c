@@ -55,14 +55,14 @@ void pmem_init(unsigned int mbi_addr)
         
         // Find the highest address in the memory map table
         for (i = 0; i < table_row_number; i++) {
-            range_end_address = get_mms(i) + get_mml(i);
+            range_end_address = get_mms(i) + get_mml(i) - 1 ;
             
             if (range_end_address > highest_address) {
                 highest_address = range_end_address;
             }
         }
         
-        nps = (highest_address / PAGESIZE) + 1;
+        nps = (highest_address / PAGESIZE);
     }
 
     set_nps(nps); // Setting the value computed above to NUM_PAGES.
@@ -112,7 +112,7 @@ void pmem_init(unsigned int mbi_addr)
     for (i = 0; i < table_row_number; i++) {
         if (is_usable(i)) {
             range_start_address = get_mms(i);
-            range_end_address = range_start_address + get_mml(i);
+            range_end_address = range_start_address + get_mml(i) - 1;
 
             // Check each page within this range
             for (unsigned int page = VM_USERLO_PI; page < VM_USERHI_PI; page++) {

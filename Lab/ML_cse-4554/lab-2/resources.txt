@@ -1,0 +1,7 @@
+
+Topics Covered:
+Linear Regression Implementation
+Visualization tool - Matplotlib
+
+Resources:
+https://www.youtube.com/watch?v=VmbA0pi2cRQ&ab_channel=NeuralNine

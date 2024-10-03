@@ -1,0 +1,103 @@
+<%- include('../partials/header.ejs') %> <%- include('../partials/navbar.ejs')
+%>
+
+<section class="h-lvh">
+  <h2 class="text-2xl mb-4 px-12">Our Guests</h2>
+  <div class="flex flex-col">
+    <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
+      <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="overflow-hidden shadow-lg rounded-xl">
+          <table class="min-w-full table-auto">
+            <thead class="border-b">
+              <tr>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  #
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Guest
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Email
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Edit
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Delete
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let guest of guests) { %>
+              <tr class="border-b">
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  <%= guest.user_id %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <div
+                    class="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300"
+                    id="user-menu-button"
+                    aria-expanded="false"
+                    data-dropdown-toggle="user-dropdown"
+                    data-dropdown-placement="bottom"
+                  >
+                    <img
+                      class="w-8 h-8 rounded-full"
+                      src="../assets/images/<%= guest.img_url %>"
+                      alt="user photo"
+                    />
+                  </div>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= guest.email %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <button
+                    class="text-sm hover:bg-yellow-600 hover:text-white px-2 border-2 border-yellow-600 py-1 rounded-md bg-gray-100 text-yellow-600"
+                  >
+                    <a href="/edit-guest/<%= guest.guest_id %>"> Edit </a>
+                  </button>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <button
+                    class="text-sm hover:bg-rose-700 hover:text-white px-2 border-2 border-rose-700 py-1 rounded-md bg-gray-100 text-rose-700"
+                  >
+                    <a href="/delete-guest/<%= guest.guest_id %>"> Delete </a>
+                  </button>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer.ejs') %>

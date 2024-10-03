@@ -16,10 +16,14 @@
 unsigned int alloc_page(unsigned int proc_index, unsigned int vaddr,
                         unsigned int perm)
 {
-    unsigned int page_index = container_alloc(proc_index);
-    if (page_index != 0) {
-        return map_page(proc_index, vaddr, page_index, perm);
-    } else {
+    unsigned int page_index = container_alloc(proc_index); // returns the index of the allocated page
+
+    if (page_index != 0) // the page is allocated successfully
+    {
+        return map_page(proc_index, vaddr, page_index, perm); // returns the physical page index
+    }
+    else
+    {
         return MagicNumber;
     }
 }
@@ -30,6 +34,7 @@ unsigned int alloc_page(unsigned int proc_index, unsigned int vaddr,
 unsigned int alloc_mem_quota(unsigned int id, unsigned int quota)
 {
     unsigned int child;
-    child = container_split(id, quota);
+    child = container_split(id, quota); // returns the id of the child process
+
     return child;
 }

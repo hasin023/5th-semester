@@ -1,0 +1,153 @@
+<%- include('../partials/header.ejs') %> <%- include('../partials/navbar.ejs')
+%>
+
+<section class="h-lvh">
+  <h2 class="text-2xl mb-4 px-12">Your Events</h2>
+  <div class="flex flex-col">
+    <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
+      <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="overflow-hidden shadow-lg rounded-xl">
+          <table class="min-w-full table-auto">
+            <thead class="border-b">
+              <tr>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  #
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Event ID
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Hotel ID
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Start Date
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  End Date
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Room Quantity
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Room Invoice
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Number of People
+                </th>
+                <th
+                  scope="col"
+                  class="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                >
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let event of events) { %>
+              <tr class="border-b">
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  <%= event.event_reservation_id %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.event_id %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.hotel_id %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.start_date.toLocaleDateString('en-GB', { day:
+                  '2-digit', month: 'long', year: 'numeric', weekday: 'long' })
+                  %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.end_date.toLocaleDateString('en-GB', { day:
+                  '2-digit', month: 'long', year: 'numeric', weekday: 'long' })
+                  %>
+                </td>
+
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.room_quantity %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.room_invoice %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <%= event.no_of_people %>
+                </td>
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <% if (event.status === 1) { %> Reserved <% } else if
+                  (event.status === 2) { %> Cancelled <% } else if (event.status
+                  === 3) { %> Finished <% } %>
+                </td>
+
+                <td
+                  class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap"
+                >
+                  <button
+                    class="text-sm hover:bg-lime-700 hover:text-white px-2 border-2 border-lime-700 py-1 rounded-md bg-gray-100 text-lime-700"
+                  >
+                    <a href="/event-rooms/<%= event.event_id %>">
+                      View Rooms
+                    </a>
+                  </button>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="mx-auto">
+      <button
+        class="text-sm hover:bg-lime-700 mt-6 hover:text-white px-3 border-2 border-lime-700 py-2 rounded-md bg-gray-100 text-lime-700"
+      >
+        <a href="/reserve-event"> Reserve Event &rarr; </a>
+      </button>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer.ejs') %>

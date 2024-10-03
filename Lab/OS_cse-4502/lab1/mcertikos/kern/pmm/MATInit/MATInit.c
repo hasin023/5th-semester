@@ -13,7 +13,7 @@
  * 1. Calculate the actual physical memory of the machine, and sets the number
  *    of physical pages (NUM_PAGES).
  * 2. Initializes the physical allocation table (AT) implemented in the MATIntro layer
- *    based on the information available in the physical memory map table.
+ *    based on the information available in presents an address in memory, sthe physical memory map table.
  *    Review import.h in the current directory for the list of available
  *    getter and setter functions.
  */
@@ -23,7 +23,7 @@ void pmem_init(unsigned int mbi_addr)
 
     // Declare variables
     unsigned int table_row_number;
-    
+
     unsigned int range_start_address;
     unsigned int range_end_address;
     unsigned int range_length;
@@ -52,16 +52,18 @@ void pmem_init(unsigned int mbi_addr)
     else
     {
         highest_address = 0;
-        
+
         // Find the highest address in the memory map table
-        for (i = 0; i < table_row_number; i++) {
-            range_end_address = get_mms(i) + get_mml(i) - 1 ;
-            
-            if (range_end_address > highest_address) {
+        for (i = 0; i < table_row_number; i++)
+        {
+            range_end_address = get_mms(i) + get_mml(i) - 1;
+
+            if (range_end_address > highest_address)
+            {
                 highest_address = range_end_address;
             }
         }
-        
+
         nps = (highest_address / PAGESIZE);
     }
 
@@ -108,23 +110,24 @@ void pmem_init(unsigned int mbi_addr)
         at_set_perm(i, 0);
     }
 
-
-    for (i = 0; i < table_row_number; i++) {
-        if (is_usable(i)) {
+    for (i = 0; i < table_row_number; i++)
+    {
+        if (is_usable(i))
+        {
             range_start_address = get_mms(i);
             range_end_address = range_start_address + get_mml(i) - 1;
 
-            // Check each page within this range
-            for (unsigned int page = VM_USERLO_PI; page < VM_USERHI_PI; page++) {
+            // Check each page boundary within the memory range
+            for (unsigned int page = VM_USERLO_PI; page < VM_USERHI_PI; page++)
+            {
                 unsigned int page_start = page * PAGESIZE;
                 unsigned int page_end = page_start + PAGESIZE - 1;
 
-                
-                if (page_start >= range_start_address && page_end < range_end_address) {
+                if (page_start >= range_start_address && page_end < range_end_address)
+                {
                     at_set_perm(page, 2);
                 }
             }
         }
     }
-
 }

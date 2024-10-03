@@ -1,0 +1,35 @@
+  
+  PHYSICAL MEMORY -->>
+  
+  - A container is an object used to keep track of the resource usage of each process, as well as the parent/child relationships between processes.
+  - If a user process uses up the maximum amount of memory via infinite allocation, the OS will deny all future allocation requests.
+  - Currently, the only resource we track is the number of pages allocated by each process. But the container can be extended to track any kind of resource.
+  - Process id 0 is fixed for the kernel itself.
+  - Only 2 situations for containers to be used -> 1. when a page allocation request is made, 2. when a new ID is spawned.
+  - MUST MAINTAIN -> The sum of the available quotas (i.e., quota minus usage) of all used IDs is at most the number of pages available for allocation.
+  - MContainer Layer.
+  
+  
+  VIRTUAL MEMORY -->>
+  
+  - Segment translation is the process of converting a virtual address into a linear address.
+  - Page translation is the process of converting a linear address into a physical address.
+  - mCertiKOS uses paging for virtual memory and protection, segment translation and segment-based protection cannot be disabled on the x86.
+  - Virtual Address -> A virtual address consists of a segment selector and an offset within the segment. 
+  - Linear Address -> A linear address is what you get after segment translation but before page translation. 
+  - Physical Address ->  A physical address is what you finally get after both segment and page translation.
+  - We need an offset & selector for the segment translation. Which turns the virtual address into linear address.
+  - A Global Descriptor Table (GDT) is install in mCertiKOS, that effectively disabled segment translation by setting all segment base addresses to 0 and limits to 0xffffffff. 
+  - Thus, the selector has no effect and the linear address always equals to the virtual address offset.
+  - From code executing on the CPU, once we're in protected mode and the paging is turned on, there's no way to directly use a linear or physical address.
+  - All memory references are interpreted as virtual addresses and translated by the MMU(Memory Management Unit), which means all pointers in C are virtual addresses.
+  - The mCertiKOS kernel often needs to manipulate addresses as opaque values or as integers, without dereferencing them.
+  - The kernel also often needs to treat an integer as an address or a pointer.
+  - The kernel sometimes needs to work with only the physical memory address. But the kernel can't bypass the virtual translation.
+  - To fix this, we reserve the entire page structure with 0 index for kernel & configure the entire page structure as identity map. So when kernel needs to access physical memory, we can switch to page structure 0.
+  - A page fault is triggered if we try to access a non-mapped virtual address. 
+  - The page fault handler dynamically allocates a page for the corresponding virtual address and returns back to the instruction that it was working on before triggering the page fault.
+  - Virtual Memory Management Layer.
+  - x86 architecture uses 10 bit translation for it's efficient page translation works, which means, 2^10 = 1024, which is why most of the array are initialzed with 1024.
+  - Each page directory in mCertiKOS has 1024 processes.
+  - x << 12 means, 2^12 = 4096 or 4KB, which is the size of each physical page, and using <<12 or <<22 on a memory address index, return is the actual physical address value. For 4KB pages use << 12, for 4MB use << 22.

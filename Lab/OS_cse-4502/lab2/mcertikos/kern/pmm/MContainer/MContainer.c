@@ -2,12 +2,13 @@
 #include <lib/x86.h>
 #include "import.h"
 
-struct SContainer {
-    int quota;      // maximum memory quota of the process
-    int usage;      // the current memory usage of the process
-    int parent;     // the id of the parent process
-    int nchildren;  // the number of child processes
-    int used;       // whether current container is used by a process
+struct SContainer
+{
+    int quota;     // maximum number of pages that ID i is allowed to use
+    int usage;     // number of pages that ID i has currently allocated for itself or distributed to children
+    int parent;    // the ID of the parent of i (or 0 if i = 0)
+    int nchildren; // the number of children of i
+    int used;      // boolean saying whether or not ID i is in use
 };
 
 // mCertiKOS supports up to NUM_IDS processes
@@ -20,7 +21,6 @@ static struct SContainer CONTAINER[NUM_IDS];
 void container_init(unsigned int mbi_addr)
 {
     unsigned int real_quota;
-    unsigned int nps, idx;
 
     pmem_init(mbi_addr);
     real_quota = 0;
@@ -30,20 +30,23 @@ void container_init(unsigned int mbi_addr)
      * It should be the number of the unallocated pages with the normal permission
      * in the physical memory allocation table.
      */
-    nps = get_nps();
-    idx = 1;
-    while (idx < nps) {
-        if (at_is_norm(idx) && !at_is_allocated(idx)) {
-            real_quota++;
+
+    for (int i = 0; i < get_nps(); i++)
+    {
+        // Find number of unallocated pages with normal permission
+        if (at_is_allocated(i) == 0)
+        {
+            if (at_is_norm(i) == 1)
+            {
+                real_quota++;
+            }
         }
-        idx++;
     }
+    KERN_DEBUG("\nreal quota: %d %d\n\n", real_quota, get_nps());
 
-    KERN_DEBUG("\nreal quota: %d\n\n", real_quota);
-
-    CONTAINER[0].quota = real_quota;
+    CONTAINER[0].quota = real_quota; // root process has the maximum quota
     CONTAINER[0].usage = 0;
-    CONTAINER[0].parent = 0;
+    CONTAINER[0].parent = 0; // As this is the root process, it has parent set to 0
     CONTAINER[0].nchildren = 0;
     CONTAINER[0].used = 1;
 }
@@ -51,32 +54,63 @@ void container_init(unsigned int mbi_addr)
 // Get the id of parent process of process # [id].
 unsigned int container_get_parent(unsigned int id)
 {
-    return CONTAINER[id].parent;
+    // If we have remaining IDs in NUM_IDS, then return the parent ID.
+    if (id < NUM_IDS)
+    {
+        return CONTAINER[id].parent;
+    }
+
+    return 0;
 }
 
 // Get the number of children of process # [id].
 unsigned int container_get_nchildren(unsigned int id)
 {
-    return CONTAINER[id].nchildren;
+    if (id < NUM_IDS)
+    {
+        return CONTAINER[id].nchildren;
+    }
+
+    return 0;
 }
 
 // Get the maximum memory quota of process # [id].
 unsigned int container_get_quota(unsigned int id)
 {
-    return CONTAINER[id].quota;
+    if (id < NUM_IDS)
+    {
+        return CONTAINER[id].quota;
+    }
+
+    return 0;
 }
 
 // Get the current memory usage of process # [id].
 unsigned int container_get_usage(unsigned int id)
 {
-    return CONTAINER[id].usage;
+    if (id < NUM_IDS)
+    {
+        return CONTAINER[id].usage;
+    }
+
+    return 0;
 }
 
 // Determines whether the process # [id] can consume an extra
 // [n] pages of memory. If so, returns 1, otherwise, returns 0.
 unsigned int container_can_consume(unsigned int id, unsigned int n)
 {
-    return CONTAINER[id].usage + n <= CONTAINER[id].quota;
+    if (id < NUM_IDS)
+    {
+        if (CONTAINER[id].quota - CONTAINER[id].usage >= n)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    return 0;
 }
 
 /**
@@ -87,26 +121,28 @@ unsigned int container_can_consume(unsigned int id, unsigned int n)
  */
 unsigned int container_split(unsigned int id, unsigned int quota)
 {
-    unsigned int child, nc;
+    unsigned int child, nc; // id of the new child container, current number of children for parent
 
     nc = CONTAINER[id].nchildren;
-    child = id * MAX_CHILDREN + 1 + nc;  // container index for the child process
+    child = id * MAX_CHILDREN + 1 + nc; // unique id formula based on parent id and current number of children
 
-    if (NUM_IDS <= child) {
+    // If the child index is out of range, return NUM_IDS.
+    if (NUM_IDS <= child)
+    {
         return NUM_IDS;
     }
 
     /**
      * Update the container structure of both parent and child process appropriately.
      */
-    CONTAINER[child].used = 1;
+    CONTAINER[id].nchildren++;
+    CONTAINER[id].usage += quota; // Increase the usage of parent by the quota of the child
+
     CONTAINER[child].quota = quota;
     CONTAINER[child].usage = 0;
     CONTAINER[child].parent = id;
     CONTAINER[child].nchildren = 0;
-
-    CONTAINER[id].usage += quota;
-    CONTAINER[id].nchildren++;
+    CONTAINER[child].used = 1;
 
     return child;
 }
@@ -118,21 +154,33 @@ unsigned int container_split(unsigned int id, unsigned int quota)
  */
 unsigned int container_alloc(unsigned int id)
 {
-    if (CONTAINER[id].usage + 1 <= CONTAINER[id].quota) {
-        CONTAINER[id].usage++;
-        return palloc();
-    } else {
-        return 0;
+    if (container_can_consume(id, 1))
+    {
+        for (unsigned int i = 0; i < get_nps(); i++)
+        {
+            if (at_is_allocated(i) == 0 && at_is_norm(i) == 1)
+            {
+                palloc();
+                CONTAINER[id].usage++; // Increase the usage of the container by 1
+
+                return i; // Index for the allocated page
+            }
+        }
     }
+
+    return 0;
 }
 
 // Frees the physical page and reduces the usage by 1.
 void container_free(unsigned int id, unsigned int page_index)
 {
-    if (at_is_allocated(page_index)) {
+    if (page_index < get_nps() && at_is_allocated(page_index))
+    {
         pfree(page_index);
-        if (CONTAINER[id].usage > 0) {
-            CONTAINER[id].usage--;
+
+        if (CONTAINER[id].usage > 0) // If the usage is greater than 0
+        {
+            CONTAINER[id].usage--; // Decrease the usage of the container by 1
         }
     }
 }

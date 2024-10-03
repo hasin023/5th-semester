@@ -47,6 +47,14 @@ public class Rider extends User {
         return prefferedPaymentStrategy;
     }
 
+    public String getPrefferedPaymentStrategyName() {
+        if (prefferedPaymentStrategy == null) {
+            return "No payment method selected";
+        }
+
+        return prefferedPaymentStrategy.toString();
+    }
+
     public void setPrefferedPaymentStrategy(PaymentStrategy prefferedPaymentStrategy) {
         this.prefferedPaymentStrategy = prefferedPaymentStrategy;
     }

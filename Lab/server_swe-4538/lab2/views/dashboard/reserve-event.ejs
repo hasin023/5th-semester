@@ -1,0 +1,158 @@
+<%- include('../partials/header.ejs') %> <%- include('../partials/navbar.ejs')
+%>
+
+<section>
+  <div
+    class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0"
+  >
+    <a
+      href="#"
+      class="flex items-center mb-6 text-2xl font-semibold text-gray-900"
+    >
+      <img class="w-8 h-8 mr-2" src="/eventms.png" alt="logo" />
+      Reserve new Event
+    </a>
+    <div
+      class="w-full bg-white rounded-lg shadow border md:mt-0 sm:max-w-2xl xl:p-0"
+    >
+      <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <form
+          class="space-y-4 md:space-y-6"
+          action="/reserve-event"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <div>
+            <label
+              for="event_type"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Event Type</label
+            >
+            <select
+              name="event_type"
+              id="event_type"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            >
+              <% for(let eventType of eventTypes) { %>
+              <option value="<%= eventType.event_id %>">
+                <%= eventType.event_name %>
+              </option>
+              <% } %>
+            </select>
+          </div>
+          <div>
+            <label
+              for="hotel"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Hotel</label
+            >
+            <select
+              name="hotel"
+              id="hotel"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            >
+              <% for(let hotel of hotels) { %>
+              <option value="<%= hotel.hotel_id %>">
+                <%= hotel.hotel_name %> ( <%= hotel.hotel_id %> )
+              </option>
+              <% } %>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="room"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Room</label
+            >
+            <select
+              name="room"
+              id="room"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            >
+              <% rooms.forEach(room => { %>
+              <option value="<%= room.available_room_id %>">
+                <%= room.room_type_name %> - <%= room.hotel_id %> (Available <%=
+                room.available_rooms %>)
+              </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="start_date"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Start Date</label
+            >
+            <input
+              type="date"
+              name="start_date"
+              id="start_date"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="end_date"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >End Date</label
+            >
+            <input
+              type="date"
+              name="end_date"
+              id="end_date"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="room_quantity"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Room Quantity</label
+            >
+            <input
+              type="number"
+              name="room_quantity"
+              id="room_quantity"
+              placeholder="Add room quantity"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="no_of_people"
+              class="block mb-2 text-sm font-medium text-gray-900"
+              >Number of People</label
+            >
+            <input
+              type="number"
+              name="no_of_people"
+              id="no_of_people"
+              placeholder="Add number of people"
+              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              required
+            />
+          </div>
+          <% if (error) { %>
+          <p id="error" class="mt-2 text-xs text-red-600"><%= error %></p>
+          <% } %>
+          <input
+            type="submit"
+            value="Reserve Event"
+            name="reserve-event"
+            class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          />
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer.ejs') %>

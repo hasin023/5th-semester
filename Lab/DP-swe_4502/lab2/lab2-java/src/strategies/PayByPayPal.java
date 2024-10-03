@@ -75,4 +75,9 @@ public class PayByPayPal implements PaymentStrategy {
     private void setSignedIn(boolean signedIn) {
         this.signedIn = signedIn;
     }
+
+    @Override
+    public String toString() {
+        return "PayPal";
+    }
 }

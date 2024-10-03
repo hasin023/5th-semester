@@ -12,6 +12,8 @@
   "license": "ISC",
   "description": "Task for lab 01",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0"
   },
   "devDependencies": {

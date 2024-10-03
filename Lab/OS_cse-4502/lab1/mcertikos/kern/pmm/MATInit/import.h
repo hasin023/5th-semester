@@ -24,11 +24,11 @@ void at_set_perm(unsigned int page_index, unsigned int perm);
  * that the range [11000, 11300) is reserved by the BIOS and is not available for the
  * kernel to use.
  */
-unsigned int get_size(void);               // The number of rows in the table.
-unsigned int get_mms(unsigned int idx);    // The start address of the range with given row index.
-unsigned int get_mml(unsigned int idx);    // The length of the range with given row index.
-unsigned int is_usable(unsigned int idx);  // Whether the range with given row index is usable by
-                                           // the kernel. (0: reserved, 1: useable)
+unsigned int get_size(void);              // The number of rows in the table.
+unsigned int get_mms(unsigned int idx);   // The start address of the range with given row index.
+unsigned int get_mml(unsigned int idx);   // The length of the range with given row index.
+unsigned int is_usable(unsigned int idx); // Whether the range with given row index is usable by
+                                          // the kernel. (0: reserved, 1: useable)
 
 /**
  * Lower layer initialization function.
@@ -36,6 +36,6 @@ unsigned int is_usable(unsigned int idx);  // Whether the range with given row i
  */
 void devinit(unsigned int mbi_addr);
 
-#endif  /* _KERN_ */
+#endif /* _KERN_ */
 
-#endif  /* !_KERN_PMM_MATINIT_H_ */
+#endif /* !_KERN_PMM_MATINIT_H_ */

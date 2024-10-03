@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Concrete strategy. Implements payment method using digital wallet.
+ */
 public class DigitalWallet implements PaymentStrategy {
     private String phoneNumber;
     private String password;
@@ -71,5 +74,10 @@ public class DigitalWallet implements PaymentStrategy {
 
     private void setSignedIn(boolean signedIn) {
         this.signedIn = signedIn;
+    }
+
+    @Override
+    public String toString() {
+        return "Digital Wallet";
     }
 }

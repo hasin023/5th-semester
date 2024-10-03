@@ -5,10 +5,10 @@
 #define PDE_ADDR(x) (x >> 22)
 #define PTE_ADDR(x) ((x >> 12) & 0x3ff)
 
-#define PAGESIZE      4096
-#define PDIRSIZE      (PAGESIZE * 1024)
-#define VM_USERLO     0x40000000
-#define VM_USERHI     0xF0000000
+#define PAGESIZE 4096
+#define PDIRSIZE (PAGESIZE * 1024)
+#define VM_USERLO 0x40000000
+#define VM_USERHI 0xF0000000
 #define VM_USERLO_PDE (VM_USERLO / PDIRSIZE)
 #define VM_USERHI_PDE (VM_USERHI / PDIRSIZE)
 
@@ -22,11 +22,18 @@ void pdir_init(unsigned int mbi_addr)
     unsigned int proc_index, pde_index;
     idptbl_init(mbi_addr);
 
-    for (proc_index = 0; proc_index < NUM_IDS; proc_index++) {
-        for (pde_index = 0; pde_index < 1024; pde_index++) {
-            if ((pde_index < VM_USERLO_PDE) || (VM_USERHI_PDE <= pde_index)) {
+    // From ID = 0 to NUM_IDS - 1
+    for (proc_index = 0; proc_index < NUM_IDS; proc_index++)
+    {
+        // From 0 to 1024-1
+        for (pde_index = 0; pde_index < 1024; pde_index++)
+        {
+            if ((pde_index < VM_USERLO_PDE) || (VM_USERHI_PDE <= pde_index)) // If the page range is outside of the user using range
+            {
                 set_pdir_entry_identity(proc_index, pde_index);
-            } else {
+            }
+            else
+            {
                 rmv_pdir_entry(proc_index, pde_index);
             }
         }
@@ -46,11 +53,15 @@ unsigned int alloc_ptbl(unsigned int proc_index, unsigned int vaddr)
     unsigned int pde_index = PDE_ADDR(vaddr);
     unsigned int pte_index;
 
-    if (page_index == 0) {
+    if (page_index == 0)
+    {
         return 0;
-    } else {
+    }
+    else
+    {
         set_pdir_entry_by_va(proc_index, vaddr, page_index);
-        for (pte_index = 0; pte_index < 1024; pte_index++) {
+        for (pte_index = 0; pte_index < 1024; pte_index++)
+        {
             rmv_ptbl_entry(proc_index, pde_index, pte_index);
         }
 
@@ -63,7 +74,7 @@ unsigned int alloc_ptbl(unsigned int proc_index, unsigned int vaddr)
 // and frees the page for the page table entries (with container_free).
 void free_ptbl(unsigned int proc_index, unsigned int vaddr)
 {
-    unsigned int page_index = get_pdir_entry_by_va(proc_index, vaddr) >> 12;
+    unsigned int page_index = get_pdir_entry_by_va(proc_index, vaddr) >> 12; // get page directory entry by VM and calculate physical address
 
     rmv_pdir_entry(proc_index, PDE_ADDR(vaddr));
     container_free(proc_index, page_index);

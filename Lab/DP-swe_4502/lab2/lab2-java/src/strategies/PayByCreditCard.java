@@ -94,4 +94,9 @@ public class PayByCreditCard implements PaymentStrategy {
         this.verified = verified;
     }
 
+    @Override
+    public String toString() {
+        return "Credit Card";
+    }
+
 }

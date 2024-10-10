@@ -2,10 +2,9 @@
   <div
     class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
   >
-    <a href="#" class="flex items-center space-x-3">
-      <img src="/eventms.png" class="h-8" alt="EventMS Logo" />
+    <a href="/" class="flex items-center space-x-3">
       <span class="self-center text-2xl font-semibold whitespace-nowrap"
-        >EventMS</span
+        >Animee</span
       >
     </a>
     <div class="flex items-center gap-2 md:order-2 space-x-3 md:space-x-3">
@@ -18,7 +17,7 @@
       >
         <img
           class="w-8 h-8 rounded-full"
-          src="../assets/images/<%= user.img_url %>"
+          src="/<%= user.img_url %>"
           alt="user photo"
         />
       </div>
@@ -44,37 +43,20 @@
             >Home</a
           >
         </li>
-        <% if (user.user_type==='admin' ) { %>
         <li>
           <a
-            href="/hotel"
+            href="/explore"
             class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary-600 md:p-0"
-            >Hotel</a
+            >Explore</a
           >
         </li>
         <li>
           <a
-            href="/guests"
+            href="/watch-list"
             class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary-600 md:p-0"
-            >Guests</a
+            >WatchList</a
           >
         </li>
-        <% } else if (user.user_type==='client' ) { %>
-        <li>
-          <a
-            href="/events"
-            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary-600 md:p-0"
-            >Events</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primary-600 md:p-0"
-            >Reservations</a
-          >
-        </li>
-        <% } %>
       </ul>
     </div>
   </div>

@@ -1,0 +1,28 @@
+১. একটা community based review system বানাতে হবে
+
+২. Authentication দরকার নাই কিন্তু log in page থাকবে and only name দিয়েই login করা যাবে
+
+৩. প্রথমবার log in করলে কিছু ট্যাগ সিলেক্ট করতে বলবে 
+
+৪. মূল একটা CSV file OR TXT file OR json file থাকবে ওখানে অনেক মুভি বা এনিমে বা বই বা যা ইচ্ছা থাকবে 
+
+৫. ঐ main txt file এ প্রতিটা মুভি বা যাই হোক তার সাথে কিছু tag থাকবে
+
+৬. কেউ login এর পর tag যখন click করবে তখন ঐ tag এর মুভিগুলো তার favourite list এ add হবে
+
+৭. প্রতিটা movie এর page থাকবে যেখানে review or comment post করা যাবে
+
+৮. post করা review সবাই দেখতে পাবে
+
+৯. movie গুলো যেকোন user "Watched" , "watching" and "wishlist" হিসাবে mark করতে পারবে
+
+১০. এই তিন ধরনের Data প্রতিটা user এর profile এ show করবে
+
+
+
+
+সম্পূরক guideline from mam
+
+use text file OR CSV OR JSON or if you wish but not mandatory database.
+
+any language or framework allowed . not bound to JS. you can use Laravel, django , DotNet etc.

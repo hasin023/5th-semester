@@ -1,0 +1,27 @@
+{
+  "name": "local-endcypt",
+  "version": "1.0.0",
+  "description": "A local server for encryption and decryption",
+  "main": "server.ts",
+  "scripts": {
+    "start": "tsc && nodemon dist/server.js",
+    "build": "tsc"
+  },
+  "keywords": [
+    "Local-Server"
+  ],
+  "author": "hasin023",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.4",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  }
+}

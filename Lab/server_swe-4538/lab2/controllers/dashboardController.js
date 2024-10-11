@@ -2,7 +2,7 @@ const pool = require("../config/db")
 const formidable = require("formidable")
 
 class DashboardController {
-  dashboardPage = (req, res) => {
+  renderdashboardPage = (req, res) => {
     const { userInfo } = req
 
     res.status(200).render("dashboard/index.ejs", {
@@ -34,13 +34,27 @@ class DashboardController {
     }
   }
 
-  renderWatchListPage = (req, res) => {
+  renderWatchListPage = async (req, res) => {
     const { userInfo } = req
 
-    res.status(200).render("dashboard/watch-list.ejs", {
-      title: "Watch List",
-      user: userInfo,
-    })
+    try {
+      const watchListQuery = `
+      SELECT a.ANIME_NAME, a.ANIME_IMG, w.STATUS, w.ADDED_DATE
+      FROM WATCHLIST w
+      JOIN ANIME a ON w.ANIME_ID = a.ANIME_ID
+      WHERE w.USER_ID = $1
+    `
+      const watchListResult = await pool.query(watchListQuery, [userInfo.id])
+
+      res.status(200).render("dashboard/watch-list.ejs", {
+        title: "Watch List",
+        user: userInfo,
+        watchlist: watchListResult.rows,
+      })
+    } catch (err) {
+      console.error("Error fetching watchlist:", err)
+      res.status(500).send("Internal Server Error")
+    }
   }
 
   addReview = async (req, res) => {

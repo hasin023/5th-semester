@@ -13,6 +13,7 @@ const PORT = process.env.APP_PORT || 5000
 // Routes
 const authRouter = require("./Routes/authRoute")
 const dashboardRouter = require("./Routes/dashboardRoute")
+const authMiddleware = require("./middleware/authMiddleware")
 
 // Middleware
 app.use(cors())
@@ -41,9 +42,12 @@ app.use(express.static(path.join(__dirname, "views")))
 app.use("/", authRouter)
 app.use("/", dashboardRouter)
 
-app.get("/", (req, res) => {
+app.get("/", authMiddleware, (req, res) => {
+  const { userInfo } = req
+
   return res.render("root.ejs", {
     title: "Home Page",
+    user: userInfo,
   })
 })
 

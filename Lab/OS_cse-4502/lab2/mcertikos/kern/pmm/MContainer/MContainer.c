@@ -121,13 +121,13 @@ unsigned int container_can_consume(unsigned int id, unsigned int n)
  */
 unsigned int container_split(unsigned int id, unsigned int quota)
 {
-    unsigned int child, nc; // id of the new child container, current number of children for parent
+    unsigned int child_id, number_of_children; // id of the new child container, current number of children for parent
 
-    nc = CONTAINER[id].nchildren;
-    child = id * MAX_CHILDREN + 1 + nc; // unique id formula based on parent id and current number of children
+    number_of_children = CONTAINER[id].nchildren;
+    child_id = id + number_of_children + 1; // unique id formula based on parent id and current number of children
 
     // If the child index is out of range, return NUM_IDS.
-    if (NUM_IDS <= child)
+    if (child_id >= NUM_IDS)
     {
         return NUM_IDS;
     }
@@ -138,13 +138,13 @@ unsigned int container_split(unsigned int id, unsigned int quota)
     CONTAINER[id].nchildren++;
     CONTAINER[id].usage += quota; // Increase the usage of parent by the quota of the child
 
-    CONTAINER[child].quota = quota;
-    CONTAINER[child].usage = 0;
-    CONTAINER[child].parent = id;
-    CONTAINER[child].nchildren = 0;
-    CONTAINER[child].used = 1;
+    CONTAINER[child_id].quota = quota;
+    CONTAINER[child_id].usage = 0;
+    CONTAINER[child_id].parent = id;
+    CONTAINER[child_id].nchildren = 0;
+    CONTAINER[child_id].used = 1;
 
-    return child;
+    return child_id;
 }
 
 /**

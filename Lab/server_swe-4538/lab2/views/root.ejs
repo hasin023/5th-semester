@@ -3,10 +3,19 @@
 <div class="container max-w-7xl mx-auto py-10">
   <h1 class="text-3xl font-semibold mb-4">Anime Community</h1>
   <div>
+    <% if (user) { %>
+    <a
+      href="/dashboard"
+      class="text-sm text-rose-600 hover:text-rose-700 hover:underline"
+      >Dashboard &rarr;</a
+    >
+    <% } else { %>
+
     <a
       href="/login"
       class="text-sm text-rose-600 hover:text-rose-700 hover:underline"
       >Login &rarr;</a
     >
+    <% } %>
   </div>
 </div>

@@ -7,8 +7,6 @@
 #define PT_PERM_UP 0
 #define PT_PERM_PTU (PTE_P | PTE_W | PTE_U)
 
-#define ADDR_MASK(x) ((unsigned int)x & 0xfffff000)
-
 /**
  * Page directory pool for NUM_IDS processes.
  * mCertiKOS maintains one page structure for each process.
@@ -53,7 +51,7 @@ unsigned int get_pdir_entry(unsigned int proc_index, unsigned int pde_index)
 void set_pdir_entry(unsigned int proc_index, unsigned int pde_index,
                     unsigned int page_index)
 {
-    unsigned int physical_address = page_index << 12;                                   // convert to 4kb physical address page, 2^12 = 4096
+    unsigned int physical_address = page_index * 4096;                                  // convert to 4kb physical address page, 2^12 = 4096
     PDirPool[proc_index][pde_index] = (unsigned int *)(physical_address | PT_PERM_PTU); // combine physical address with permissions
 }
 
@@ -79,8 +77,8 @@ void rmv_pdir_entry(unsigned int proc_index, unsigned int pde_index)
 unsigned int get_ptbl_entry(unsigned int proc_index, unsigned int pde_index,
                             unsigned int pte_index)
 {
-    unsigned int *page_table = (unsigned int *)ADDR_MASK(PDirPool[proc_index][pde_index]); // Extract the page table address from the page directory, as stores both the address and permissions
-    return page_table[pte_index];                                                          // physical address and permissions
+    unsigned int *page_table = (unsigned int *)((unsigned int)(PDirPool[proc_index][pde_index]) & 0xfffff000); // Mask out the lower 12 bits of an address, zeroing out the permission, keeping only the page address
+    return page_table[pte_index];                                                                              // physical address and permissions
 }
 
 // Sets the specified page table entry with the start address of physical page # [page_index]
@@ -90,7 +88,7 @@ void set_ptbl_entry(unsigned int proc_index, unsigned int pde_index,
                     unsigned int perm)
 {
     unsigned int *page_table = (unsigned int *)ADDR_MASK(PDirPool[proc_index][pde_index]);
-    page_table[pte_index] = (page_index << 12) | perm; // combine physical address with permissions
+    page_table[pte_index] = (page_index * 4096) | perm; // combine physical address with permissions
 }
 
 // Sets up the specified page table entry in IDPTbl as the identity map.
@@ -98,8 +96,8 @@ void set_ptbl_entry(unsigned int proc_index, unsigned int pde_index,
 void set_ptbl_entry_identity(unsigned int pde_index, unsigned int pte_index,
                              unsigned int perm)
 {
-    unsigned int addr = (pde_index << 22) | (pte_index << 12); // 2^22 = 4MB for x86 arch physical address, 2^12 = 4KB for physical address page
-    IDPTbl[pde_index][pte_index] = addr | perm;                // combine address with permissions
+    unsigned int addr = (pte_index * 4096);     // 2^12 = 4KB for physical address page
+    IDPTbl[pde_index][pte_index] = addr | perm; // combine address with permissions
 }
 
 // Sets the specified page table entry to 0.

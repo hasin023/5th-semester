@@ -2,29 +2,111 @@ const pool = require("../config/db")
 const formidable = require("formidable")
 
 class DashboardController {
-  renderdashboardPage = (req, res) => {
-    const { userInfo } = req
+  renderdashboardPage = async (req, res) => {
+    const { userInfo } = req // Assuming userInfo contains the logged-in user data
 
-    res.status(200).render("dashboard/index.ejs", {
-      title: "Dashboard",
-      user: userInfo,
-    })
+    try {
+      // Step 1: Get user-selected tags from the USERTAGS table
+      const userTagsQuery = `
+            SELECT tag_id 
+            FROM USERTAGS 
+            WHERE user_id = $1;
+        `
+      const userTagsResult = await pool.query(userTagsQuery, [userInfo.user_id])
+
+      const userTagIds = userTagsResult.rows.map((tag) => tag.tag_id)
+
+      if (userTagIds.length > 0) {
+        // Step 2: Fetch animes that match the selected tags
+        const animeQuery = `
+                SELECT a.* 
+                FROM ANIME a
+                JOIN ANIMETAGS at ON a.anime_id = at.anime_id
+                WHERE at.tag_id = ANY($1);
+            `
+        const { rows: animes } = await pool.query(animeQuery, [userTagIds])
+
+        // Step 3: Render the dashboard page with filtered animes
+        res.status(200).render("dashboard/index.ejs", {
+          title: "Dashboard",
+          user: userInfo,
+          animes: animes,
+        })
+      } else {
+        // If the user hasn't selected any tags, you may want to show all or none
+        res.status(200).render("dashboard/index.ejs", {
+          title: "Dashboard",
+          user: userInfo,
+          animes: [], // No tags selected
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching animes based on user tags:", error)
+      res.status(500).render("dashboard/error.ejs", {
+        status: 500,
+        title: "Error",
+        message: "Internal server error",
+        error: error,
+      })
+    }
+  }
+
+  renderSelectTags = async (req, res) => {
+    const { userInfo } = req
+    const { tag_ids } = req.body
+
+    try {
+      // Insert selected tags into USERTAGS table
+      const insertUserTagsQuery = `
+            INSERT INTO usertags (user_id, tag_id) VALUES ($1, UNNEST($2::int[]))
+            ON CONFLICT DO NOTHING;
+        `
+      await pool.query(insertUserTagsQuery, [userInfo.id, tag_ids])
+
+      // Update the first_time flag to false
+      const updateFirstTimeQuery =
+        "UPDATE users SET first_time = false WHERE user_id = $1;"
+      await pool.query(updateFirstTimeQuery, [userInfo.id])
+
+      res.redirect("/dashboard")
+    } catch (error) {
+      console.error("Error saving user tags:", error)
+      res.status(500).render("dashboard/error.ejs", {
+        status: 500,
+        title: "Error",
+        message: "Internal server error",
+        error: error,
+      })
+    }
   }
 
   renderExplorePage = async (req, res) => {
     const { userInfo } = req
+    const { tagId } = req.query
 
     try {
-      const animeQuery = "select * from anime;"
-      const { rows } = await pool.query(animeQuery)
+      let animeQuery = `
+      SELECT anime.anime_id, anime.anime_name, anime.anime_img, anime.description
+      FROM anime
+      LEFT JOIN animetags ON anime.anime_id = animetags.anime_id
+      WHERE $1::int IS NULL OR animetags.tag_id = $1
+      GROUP BY anime.anime_id;
+    `
+      const { rows: animes } = await pool.query(animeQuery, [tagId || null])
+
+      // Query to fetch all available tags
+      const tagQuery = "SELECT * FROM tag;"
+      const { rows: tags } = await pool.query(tagQuery)
 
       res.status(200).render("dashboard/explore.ejs", {
         title: "Explore",
         user: userInfo,
-        animes: rows,
+        animes,
+        tags,
+        selectedTagId: tagId || null, // Keep track of selected tag
       })
     } catch (error) {
-      console.error("Error fetching animes:", error)
+      console.error("Error fetching data:", error)
       res.status(500).render("dashboard/error.ejs", {
         status: 500,
         title: "Error",

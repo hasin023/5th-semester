@@ -1,0 +1,44 @@
+<%- include('../partials/header.ejs') %> <%- include('../partials/navbar.ejs')
+%>
+
+<section class="max-w-7xl mx-auto py-8">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+    Welcome, <%= user.username %>! Customize your experience
+  </h2>
+  <p class="text-lg text-gray-600 text-center mb-8">
+    Select your favorite tags to personalize your dashboard.
+  </p>
+
+  <form action="/dashboard/selectTags" method="POST" class="max-w-4xl mx-auto">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <% tags.forEach(tag => { %>
+      <div
+        class="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow duration-300"
+      >
+        <label class="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="tag_ids"
+            value="<%= tag.tag_id %>"
+            class="form-checkbox text-blue-500 focus:ring-blue-500 h-5 w-5 rounded-md"
+          />
+          <span class="text-gray-700 font-medium text-lg"
+            ><%= tag.tag_name %></span
+          >
+        </label>
+      </div>
+      <% }) %>
+    </div>
+
+    <div class="flex justify-center mt-10">
+      <button
+        type="submit"
+        class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold text-lg py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+      >
+        Submit Preferences
+      </button>
+    </div>
+  </form>
+</section>
+
+<%- include('../partials/footer.ejs') %>

@@ -22,4 +22,10 @@ router.post(
   dashboardController.addAnimeToWatchList
 )
 
+router.post(
+  "/dashboard/selectTags",
+  authMiddleware,
+  dashboardController.renderSelectTags
+)
+
 module.exports = router

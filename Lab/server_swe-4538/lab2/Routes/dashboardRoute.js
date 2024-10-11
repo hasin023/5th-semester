@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/authMiddleware")
 router.get(
   "/dashboard",
   authMiddleware,
-  dashboardController.renderdashboardPage
+  dashboardController.renderDashboardPage
 )
 router.get("/explore", authMiddleware, dashboardController.renderExplorePage)
 router.get("/animes/:id", authMiddleware, dashboardController.renderAnimePage)

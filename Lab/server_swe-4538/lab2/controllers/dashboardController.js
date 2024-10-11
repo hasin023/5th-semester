@@ -2,7 +2,7 @@ const pool = require("../config/db")
 const formidable = require("formidable")
 
 class DashboardController {
-  renderdashboardPage = async (req, res) => {
+  renderDashboardPage = async (req, res) => {
     const { userInfo } = req // Assuming userInfo contains the logged-in user data
 
     try {
@@ -12,14 +12,14 @@ class DashboardController {
             FROM USERTAGS 
             WHERE user_id = $1;
         `
-      const userTagsResult = await pool.query(userTagsQuery, [userInfo.user_id])
+      const userTagsResult = await pool.query(userTagsQuery, [userInfo.id])
 
       const userTagIds = userTagsResult.rows.map((tag) => tag.tag_id)
 
       if (userTagIds.length > 0) {
-        // Step 2: Fetch animes that match the selected tags
+        // Step 2: Fetch unique animes that match the selected tags
         const animeQuery = `
-                SELECT a.* 
+                SELECT DISTINCT a.* 
                 FROM ANIME a
                 JOIN ANIMETAGS at ON a.anime_id = at.anime_id
                 WHERE at.tag_id = ANY($1);
@@ -33,7 +33,7 @@ class DashboardController {
           animes: animes,
         })
       } else {
-        // If the user hasn't selected any tags, you may want to show all or none
+        // If the user hasn't selected any tags, show an empty array
         res.status(200).render("dashboard/index.ejs", {
           title: "Dashboard",
           user: userInfo,
@@ -148,7 +148,7 @@ class DashboardController {
 
       // Fetch the reviews for this anime
       const reviewsQuery = `
-      SELECT r.rating, r.review_text, u.email 
+      SELECT r.rating, r.review_text, u.username 
       FROM review r
       JOIN users u ON r.user_id = u.user_id
       WHERE r.anime_id = $1;

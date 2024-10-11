@@ -1,0 +1,112 @@
+<%- include('../partials/header.ejs') %> <%- include('../partials/navbar.ejs')
+%>
+
+<section
+  class="relative bg-gray-900 text-white py-16"
+  style="
+    background-image: url('/<%= anime.anime_img %>');
+    background-size: cover;
+    background-position: center;
+  "
+>
+  <div class="max-w-7xl mx-auto px-4">
+    <h1 class="text-4xl font-bold"><%= anime.anime_name %></h1>
+    <p class="mt-4 max-w-3xl text-lg"><%= anime.description %></p>
+
+    <% if (userWatchlist) { %>
+    <div class="mt-6">
+      <% if (userWatchlist.status === 'watching') { %>
+      <span class="bg-yellow-500 text-white px-4 py-2 rounded-full">
+        Watching
+      </span>
+      <% } else if (userWatchlist.status === 'watched') { %>
+      <span class="bg-green-500 text-white px-4 py-2 rounded-full">
+        Watched
+      </span>
+      <% } else if (userWatchlist.status === 'watch-later') { %>
+      <span class="bg-purple-500 text-white px-4 py-2 rounded-full">
+        Plan to Watch
+      </span>
+      <% } %>
+    </div>
+    <% } else { %>
+    <form action="/watch-list/add" method="POST" class="mt-6">
+      <input type="hidden" name="anime_id" value="<%= anime.anime_id %>" />
+      <button
+        type="submit"
+        class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition duration-300 ease-in-out"
+      >
+        Add to Watchlist
+      </button>
+    </form>
+    <% } %>
+  </div>
+</section>
+
+<section class="max-w-5xl mx-auto py-10">
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 border-b-2 pb-2">Reviews</h2>
+
+  <% if (reviews.length === 0) { %>
+  <div class="text-center py-8 bg-gray-100 rounded-lg">
+    <p class="text-gray-500 text-xl">No reviews yet. Be the first to review!</p>
+  </div>
+  <% } else { %>
+  <div class="space-y-6">
+    <% reviews.forEach(review => { %>
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="flex items-center justify-between">
+        <p class="text-xl font-semibold text-yellow-500">
+          Rating: <%= review.rating %>/10
+        </p>
+        <p class="text-gray-400 text-sm">By: <%= review.email %></p>
+      </div>
+      <p class="mt-4 text-gray-700 text-base">"<%= review.review_text %>"</p>
+    </div>
+    <% }); %>
+  </div>
+  <% } %>
+</section>
+
+<section
+  class="max-w-5xl mx-auto py-10 mt-10 bg-gray-50 rounded-lg shadow-md p-6"
+>
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Add a Review</h2>
+  <form action="/review/add" method="POST" class="space-y-6">
+    <input type="hidden" name="anime_id" value="<%= anime.anime_id %>" />
+    <div>
+      <label for="rating" class="block text-lg text-gray-700 font-medium"
+        >Rating (1-10):</label
+      >
+      <input
+        type="number"
+        name="rating"
+        id="rating"
+        min="1"
+        max="10"
+        required
+        class="mt-2 p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-yellow-400"
+      />
+    </div>
+    <div>
+      <label for="review_text" class="block text-lg text-gray-700 font-medium"
+        >Your Review:</label
+      >
+      <textarea
+        name="review_text"
+        id="review_text"
+        rows="5"
+        required
+        class="mt-2 p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-yellow-400"
+        placeholder="Write your thoughts..."
+      ></textarea>
+    </div>
+    <button
+      type="submit"
+      class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-lg transition duration-300"
+    >
+      Submit Review
+    </button>
+  </form>
+</section>
+
+<%- include('../partials/footer.ejs') %>

@@ -8,10 +8,18 @@ router.get(
   dashboardController.renderdashboardPage
 )
 router.get("/explore", authMiddleware, dashboardController.renderExplorePage)
+router.get("/animes/:id", authMiddleware, dashboardController.renderAnimePage)
+
 router.get(
   "/watch-list",
   authMiddleware,
   dashboardController.renderWatchListPage
+)
+
+router.post(
+  "/watch-list/add",
+  authMiddleware,
+  dashboardController.addAnimeToWatchList
 )
 
 module.exports = router

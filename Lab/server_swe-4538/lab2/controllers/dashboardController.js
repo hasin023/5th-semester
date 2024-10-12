@@ -267,63 +267,53 @@ class DashboardController {
     }
   }
 
-  // addReview = async (req, res) => {
-  //   const { userInfo } = req
-  //   const form = new formidable.IncomingForm()
+  addReview = async (req, res) => {
+    const { anime_id, rating, review_text } = req.body
+    const { userInfo } = req // Assuming you have user information in the request
 
-  //   try {
-  //     const { fields } = await new Promise((resolve, reject) => {
-  //       form.parse(req, (err, fields) => {
-  //         if (err) {
-  //           reject(err)
-  //         } else {
-  //           resolve({ fields })
-  //         }
-  //       })
-  //     })
+    try {
+      // Check if the user has already reviewed this anime
+      const existingReviewQuery =
+        "SELECT * FROM REVIEW WHERE ANIME_ID = $1 AND USER_ID = $2"
+      const existingReview = await pool.query(existingReviewQuery, [
+        anime_id,
+        userInfo.id,
+      ])
 
-  //     console.log(fields)
+      if (existingReview.rows.length > 0) {
+        // User has already reviewed this anime, update the existing review
+        const updateReviewQuery = `
+        UPDATE REVIEW 
+        SET RATING = $1, REVIEW_TEXT = $2, REVIEW_DATE = CURRENT_TIMESTAMP
+        WHERE ANIME_ID = $3 AND USER_ID = $4
+      `
+        await pool.query(updateReviewQuery, [
+          rating,
+          review_text,
+          anime_id,
+          userInfo.id,
+        ])
+      } else {
+        // User hasn't reviewed this anime yet, insert a new review
+        const insertReviewQuery = `
+        INSERT INTO REVIEW (ANIME_ID, USER_ID, RATING, REVIEW_TEXT)
+        VALUES ($1, $2, $3, $4)
+      `
+        await pool.query(insertReviewQuery, [
+          anime_id,
+          userInfo.id,
+          rating,
+          review_text,
+        ])
+      }
 
-  //     return res.status(200).redirect("/explore")
-  //   } catch (error) {
-  //     return res.status(500).render("dashboard/error.ejs", {
-  //       status: 500,
-  //       title: "Error",
-  //       message: "Internal server error",
-  //       error: error,
-  //     })
-  //   }
-  // }
-
-  // updateReview = async (req, res) => {
-  //   const { userInfo } = req
-  //   const { review_id } = req.params
-
-  //   const form = new formidable.IncomingForm()
-
-  //   try {
-  //     const { fields } = await new Promise((resolve, reject) => {
-  //       form.parse(req, (err, fields) => {
-  //         if (err) {
-  //           reject(err)
-  //         } else {
-  //           resolve({ fields })
-  //         }
-  //       })
-  //     })
-
-  //     console.log(fields)
-
-  //     return res.status(200).redirect(`/reviews/${review_id}`)
-  //   } catch (error) {
-  //     return res.status(500).render("dashboard/error.ejs", {
-  //       status: 500,
-  //       title: "Error",
-  //       message: "Internal server error",
-  //       error: error,
-  //     })
-  //   }
-  // }
+      // Redirect back to the anime page
+      res.redirect(`/animes/${anime_id}`)
+    } catch (error) {
+      console.error("Error adding/updating review:", error)
+      res.status(500).send("An error occurred while submitting your review.")
+    }
+  }
 }
 
 module.exports = new DashboardController()

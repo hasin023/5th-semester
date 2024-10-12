@@ -41,4 +41,6 @@ router.post(
   dashboardController.removeAnimeFromWatchList
 )
 
+router.post("/review/add", authMiddleware, dashboardController.addReview)
+
 module.exports = router

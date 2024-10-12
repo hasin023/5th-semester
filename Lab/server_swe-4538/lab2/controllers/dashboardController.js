@@ -196,18 +196,66 @@ class DashboardController {
     }
   }
 
-  renderWatchListPage = async (req, res) => {
+  updateWatchListStatus = async (req, res) => {
+    const { animeId, userId, newStatus } = req.body
     const { userInfo } = req
 
+    if (userInfo.id != userId) {
+      return res.status(403).send("Unauthorized")
+    }
+
+    try {
+      const updateQuery = `
+      UPDATE WATCHLIST
+      SET STATUS = $1
+      WHERE anime_id = $2 AND user_id = $3;
+    `
+
+      await pool.query(updateQuery, [newStatus, animeId, userId])
+      res.redirect("/watch-list")
+    } catch (error) {
+      console.error("Error updating watchlist status:", error)
+      res.status(500).send("Error updating watchlist status")
+    }
+  }
+
+  removeAnimeFromWatchList = async (req, res) => {
+    const { animeId, userId } = req.body
+    const { userInfo } = req
+
+    if (userInfo.id != userId) {
+      return res.status(403).send("Unauthorized")
+    }
+
+    try {
+      const deleteQuery = `
+      DELETE FROM WATCHLIST
+      WHERE anime_id = $1 AND user_id = $2;
+    `
+      await pool.query(deleteQuery, [animeId, userId])
+      res.redirect("/watch-list")
+    } catch (error) {
+      console.error("Error removing anime from watchlist:", error)
+      res.status(500).send("Error removing anime from watchlist")
+    }
+  }
+
+  renderWatchListPage = async (req, res) => {
+    const { userInfo } = req
     try {
       const watchListQuery = `
-      SELECT a.ANIME_NAME, a.ANIME_IMG, w.STATUS, w.ADDED_DATE
+      SELECT a.ANIME_ID, a.ANIME_NAME, a.ANIME_IMG, w.STATUS, w.ADDED_DATE
       FROM WATCHLIST w
       JOIN ANIME a ON w.ANIME_ID = a.ANIME_ID
       WHERE w.USER_ID = $1
+      ORDER BY 
+        CASE 
+          WHEN w.STATUS IN ('watching', 'watch-later') THEN 0 
+          ELSE 1 
+        END,
+        w.ADDED_DATE DESC
     `
       const watchListResult = await pool.query(watchListQuery, [userInfo.id])
-
       res.status(200).render("dashboard/watch-list.ejs", {
         title: "Watch List",
         user: userInfo,
@@ -219,63 +267,63 @@ class DashboardController {
     }
   }
 
-  addReview = async (req, res) => {
-    const { userInfo } = req
-    const form = new formidable.IncomingForm()
+  // addReview = async (req, res) => {
+  //   const { userInfo } = req
+  //   const form = new formidable.IncomingForm()
 
-    try {
-      const { fields } = await new Promise((resolve, reject) => {
-        form.parse(req, (err, fields) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve({ fields })
-          }
-        })
-      })
+  //   try {
+  //     const { fields } = await new Promise((resolve, reject) => {
+  //       form.parse(req, (err, fields) => {
+  //         if (err) {
+  //           reject(err)
+  //         } else {
+  //           resolve({ fields })
+  //         }
+  //       })
+  //     })
 
-      console.log(fields)
+  //     console.log(fields)
 
-      return res.status(200).redirect("/explore")
-    } catch (error) {
-      return res.status(500).render("dashboard/error.ejs", {
-        status: 500,
-        title: "Error",
-        message: "Internal server error",
-        error: error,
-      })
-    }
-  }
+  //     return res.status(200).redirect("/explore")
+  //   } catch (error) {
+  //     return res.status(500).render("dashboard/error.ejs", {
+  //       status: 500,
+  //       title: "Error",
+  //       message: "Internal server error",
+  //       error: error,
+  //     })
+  //   }
+  // }
 
-  updateReview = async (req, res) => {
-    const { userInfo } = req
-    const { review_id } = req.params
+  // updateReview = async (req, res) => {
+  //   const { userInfo } = req
+  //   const { review_id } = req.params
 
-    const form = new formidable.IncomingForm()
+  //   const form = new formidable.IncomingForm()
 
-    try {
-      const { fields } = await new Promise((resolve, reject) => {
-        form.parse(req, (err, fields) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve({ fields })
-          }
-        })
-      })
+  //   try {
+  //     const { fields } = await new Promise((resolve, reject) => {
+  //       form.parse(req, (err, fields) => {
+  //         if (err) {
+  //           reject(err)
+  //         } else {
+  //           resolve({ fields })
+  //         }
+  //       })
+  //     })
 
-      console.log(fields)
+  //     console.log(fields)
 
-      return res.status(200).redirect(`/reviews/${review_id}`)
-    } catch (error) {
-      return res.status(500).render("dashboard/error.ejs", {
-        status: 500,
-        title: "Error",
-        message: "Internal server error",
-        error: error,
-      })
-    }
-  }
+  //     return res.status(200).redirect(`/reviews/${review_id}`)
+  //   } catch (error) {
+  //     return res.status(500).render("dashboard/error.ejs", {
+  //       status: 500,
+  //       title: "Error",
+  //       message: "Internal server error",
+  //       error: error,
+  //     })
+  //   }
+  // }
 }
 
 module.exports = new DashboardController()

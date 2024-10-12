@@ -7,6 +7,13 @@ router.get(
   authMiddleware,
   dashboardController.renderDashboardPage
 )
+
+router.post(
+  "/dashboard/selectTags",
+  authMiddleware,
+  dashboardController.renderSelectTags
+)
+
 router.get("/explore", authMiddleware, dashboardController.renderExplorePage)
 router.get("/animes/:id", authMiddleware, dashboardController.renderAnimePage)
 
@@ -23,9 +30,15 @@ router.post(
 )
 
 router.post(
-  "/dashboard/selectTags",
+  "/watch-list/update-status",
   authMiddleware,
-  dashboardController.renderSelectTags
+  dashboardController.updateWatchListStatus
+)
+
+router.post(
+  "/watch-list/remove",
+  authMiddleware,
+  dashboardController.removeAnimeFromWatchList
 )
 
 module.exports = router

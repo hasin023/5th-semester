@@ -1,0 +1,11 @@
+[{
+  "_id": {
+    "$oid": "66cabe44ef4c2237add269d5"
+  },
+  "name": "hasin-admin",
+  "email": "hasin.admin@yahoo.com",
+  "password": "89ab41d7897dd42f3f9622b421819558:42a32e442b8d1ae3bca213a16981085453f4397208835d52ff288e95d5d3f4ba22c52926be82c42b4c99f483e22f89dae7128b2f2dd884a897ccb9d7950b41d2",
+  "isVerified": true,
+  "role": "admin",
+  "__v": 0
+}]

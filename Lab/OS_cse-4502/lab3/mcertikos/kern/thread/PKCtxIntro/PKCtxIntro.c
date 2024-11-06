@@ -5,17 +5,18 @@
  * When you switch to another kernel thread, you need to save
  * the current thread's states and restore the new thread's states.
  */
-struct kctx {
-    void *esp;
-    unsigned int edi;
-    unsigned int esi;
-    unsigned int ebx;
-    unsigned int ebp;
-    void *eip;
+struct kctx
+{
+    void *esp;        // Stack pointer
+    unsigned int edi; // general-purpose registers
+    unsigned int esi; // general-purpose registers
+    unsigned int ebx; // general-purpose registers
+    unsigned int ebp; // general-purpose registers
+    void *eip;        // Instruction pointer
 };
 
 // Memory to save the NUM_IDS kernel thread states.
-struct kctx kctx_pool[NUM_IDS];
+struct kctx kctx_pool[NUM_IDS]; // holds the context for multiple threads
 
 void kctx_set_esp(unsigned int pid, void *esp)
 {

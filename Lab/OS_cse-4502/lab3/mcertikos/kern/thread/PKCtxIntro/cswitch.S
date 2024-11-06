@@ -3,7 +3,7 @@
  */
 	.globl cswitch
 cswitch:
-	movl	4(%esp), %eax	/* %eax <- from */
+	movl	4(%esp), %eax	/* %eax <- from */ /* Destination always on the right */
 	movl	8(%esp), %edx	/* %edx <- to */
 
 	/* TODO: save the old kernel context */

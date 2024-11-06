@@ -1,0 +1,4 @@
+1. What is the stack pointer actually pointing towards in the kctx struct?
+2. What is the STACK in the PKCtxNew.c file.
+3. How does the doubly linked list work in the TCB structure.
+4. How does the round-robin architecture work in the thread scheduling.
